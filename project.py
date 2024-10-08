@@ -1,3 +1,4 @@
+import csv
 import os
 import json
 
@@ -16,17 +17,35 @@ class PriceMachine():
         self.name_length = 0
 
     def load_prices(self, file_path):
-        files = os.listdir(file_path)
+        files = os.listdir(file_path)  # получить список файлов в целевой директории
         result = []
+
+        # добавить проверку что это csv файл
+
         for i in files:
             if 'price' in i:
-                result.append(i)
+                temp = file_path + i
+                result.append(temp)
             else:
                 continue
-        files= [] #освобождаю память
+        files = []  # освобождаю память
         print(result)
 
+        for file in result:
+            with open(file, encoding='utf-8') as r_file:
+                file_reader = csv.reader(r_file, delimiter=",")
+                count = 0
+                for row in file_reader:
+                    if count == 0:
 
+                        print(file, self._search_product_price_weight(row))
+                        # Вывод строки, содержащей заголовки для столбцов
+                        # print(f'Файл содержит столбцы: {", ".join(row)}')
+                    #else:
+                        # Вывод строк
+                        # print(f'    {row[0]} - {row[1]} и он родился в {row[2]} году.')
+                    count += 1
+                print(f'Всего в файле {count} строк.')
 
         '''
             Сканирует указанный каталог. Ищет файлы со словом price в названии.
@@ -48,9 +67,22 @@ class PriceMachine():
         '''
 
     def _search_product_price_weight(self, headers):
+        row = {}
+        count= 0
+        for temp in headers:
+            if 'название' in temp or 'наименование' in temp or 'продукт' in temp or 'товар' in temp:
+                row['товар'] = count
+            if 'розница' in temp or 'цена' in temp:
+                row['цена'] = count
+            if 'вес' in temp or 'масса' in temp or 'фасовка' in temp:
+                row['вес'] = count
+            count += 1
+        #print (row)
         '''
             Возвращает номера столбцов
         '''
+
+        return row
 
     def export_to_html(self, fname='output.html'):
         result = '''
@@ -75,7 +107,6 @@ class PriceMachine():
         pass
 
 
-
 print("          Анализатор прайс-листов")
 while True:
     print()
@@ -83,8 +114,8 @@ while True:
                       'для выхода нажимите /) :')
     if file_path == "/":
         break
-    if len(file_path) == 0 :
-        file_path = 'data' # путь по умолчанию в папке проекта
+    if len(file_path) == 0:
+        file_path = os.getcwd() + '\data\\'  # путь по умолчанию в папке проекта
     if os.path.exists(file_path) == False:
         input("Такой каталог не доступен, нажмите Enter для продолжения")
         print()
@@ -92,9 +123,6 @@ while True:
         print(f"Данные берем из этого каталога : {file_path}")
         pm = PriceMachine()
         print(pm.load_prices(file_path))
-
-
-
 
 #    Логика работы программы
 '''
