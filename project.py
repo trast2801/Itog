@@ -17,10 +17,11 @@ class PriceMachine():
         self.name_length = 0
 
     def load_prices(self, file_path):
+        temp_data = []
         files = os.listdir(file_path)  # получить список файлов в целевой директории
         result = []
 
-        # добавить проверку что это csv файл
+        # добавить проверку что это csv файл ??
 
         for i in files:
             if 'price' in i:
@@ -28,25 +29,32 @@ class PriceMachine():
                 result.append(temp)
             else:
                 continue
-        files = []  # освобождаю память
+        # files = []  # освобождаю память
         print(result)
-
+        count_files = 0
+        # stroka = "Номер,Название,Цена,Фасовка,Файл,Цена за кг"
+        # self.data.append(stroka)
         for file in result:
             with open(file, encoding='utf-8') as r_file:
                 file_reader = csv.reader(r_file, delimiter=",")
-                count = 0
+                count_inner = 0  # счетчик первых строк в каждом файле (имя столбцов)
                 for row in file_reader:
-                    if count == 0:
-
-                        print(file, self._search_product_price_weight(row))
+                    if count_inner == 0:
+                        dict_ = self._search_product_price_weight(row)
                         # Вывод строки, содержащей заголовки для столбцов
                         # print(f'Файл содержит столбцы: {", ".join(row)}')
-                    #else:
+                    else:
                         # Вывод строк
-                        # print(f'    {row[0]} - {row[1]} и он родился в {row[2]} году.')
-                    count += 1
-                print(f'Всего в файле {count} строк.')
-
+                        row_tovar = (dict_.get("товар"))
+                        row_cena = (dict_.get("цена"))
+                        row_ves = (dict_.get("вес"))
+                        cena_za_edinicy = round(int(row[row_cena]) / int(row[row_ves]), 2)
+                        stroka = (f' {row[row_tovar]}, {row[row_cena]}, {row[row_ves]}, {files[count_files]},'
+                                  f' {cena_za_edinicy:}')
+                        temp_data.append([row[row_tovar], row[row_cena], row[row_ves], files[count_files],cena_za_edinicy]) # заполнение массива из прайсов
+                    count_inner += 1
+            count_files += 1  # использую для ввода имени файла
+        self._enum(temp_data)
         '''
             Сканирует указанный каталог. Ищет файлы со словом price в названии.
             В файле ищет столбцы с названием товара, ценой и весом.
@@ -68,7 +76,7 @@ class PriceMachine():
 
     def _search_product_price_weight(self, headers):
         row = {}
-        count= 0
+        count = 0
         for temp in headers:
             if 'название' in temp or 'наименование' in temp or 'продукт' in temp or 'товар' in temp:
                 row['товар'] = count
@@ -77,12 +85,29 @@ class PriceMachine():
             if 'вес' in temp or 'масса' in temp or 'фасовка' in temp:
                 row['вес'] = count
             count += 1
-        #print (row)
+        # print (row)
         '''
             Возвращает номера столбцов
         '''
 
         return row
+
+    def _enum(self, data : []):  # возвращает нумерованный список
+        count = 1
+        target = []
+        target1 = sorted(data, key=lambda x: float(x[4]))
+        '''for i in target1:
+            source = str(count) + ',' +  data[count-1]
+            target.append(source)
+            count += 1
+        #self.data = target #продумать как сделать без буферного списка
+        #target1 = sorted(target, key=lambda x: float(x[6]))
+        self.data = target.copy()
+
+        '''
+        for i in target1:
+            print(i)
+
 
     def export_to_html(self, fname='output.html'):
         result = '''
