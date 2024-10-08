@@ -23,17 +23,14 @@ class PriceMachine():
 
         # добавить проверку что это csv файл ??
 
-        for i in files:
+        for i in files:  #добавляет асболютный путь к прайсам
             if 'price' in i:
                 temp = file_path + i
                 result.append(temp)
             else:
                 continue
-        # files = []  # освобождаю память
-        print(result)
+
         count_files = 0
-        # stroka = "Номер,Название,Цена,Фасовка,Файл,Цена за кг"
-        # self.data.append(stroka)
         for file in result:
             with open(file, encoding='utf-8') as r_file:
                 file_reader = csv.reader(r_file, delimiter=",")
@@ -49,17 +46,13 @@ class PriceMachine():
                         row_cena = (dict_.get("цена"))
                         row_ves = (dict_.get("вес"))
                         cena_za_edinicy = round(int(row[row_cena]) / int(row[row_ves]), 2)
-                        stroka = (f' {row[row_tovar]}, {row[row_cena]}, {row[row_ves]}, {files[count_files]},'
-                                  f' {cena_za_edinicy:}')
-                        temp_data.append([row[row_tovar], row[row_cena], row[row_ves], files[count_files],cena_za_edinicy]) # заполнение массива из прайсов
+                        temp_data.append([row[row_tovar], row[row_cena], row[row_ves], files[count_files],
+                                          cena_za_edinicy])  # заполнение массива из прайсов
+
                     count_inner += 1
             count_files += 1  # использую для ввода имени файла
-        #self._enum(temp_data)
         self.data = sorted(temp_data, key=lambda x: float(x[4]))
-        count = 1
-        for i in self.data:
-            print(count, i[0], i[1], i[2], i[3], i[4])
-            count += 1
+
 
         '''
             Сканирует указанный каталог. Ищет файлы со словом price в названии.
@@ -91,49 +84,20 @@ class PriceMachine():
             if 'вес' in temp or 'масса' in temp or 'фасовка' in temp:
                 row['вес'] = count
             count += 1
-        # print (row)
+
         '''
             Возвращает номера столбцов
         '''
 
         return row
 
-    def _enum(self, data : []):  # возвращает и сортированный нумерованный список
+    def _enum(self, data: []):  # возвращает и сортированный нумерованный список
         count = 1
         target = []
         data = sorted(data, key=lambda x: float(x[4]))
-        '''for i in target1:
-            source = str(count) + ',' +  data[count-1]
-            target.append(source)
-            count += 1
-        #self.data = target #продумать как сделать без буферного списка
-        #target1 = sorted(target, key=lambda x: float(x[6]))
-        self.data = target.copy()
-
-        '''
         for i in data:
             print(count, i[0], i[1], i[2], i[3], i[4])
             count += 1
-
-
-    # def export_to_html(self, fname='output.html'):
-    #     result = '''
-    #     <!DOCTYPE html>
-    #     <html>
-    #     <head>
-    #         <title>Позиции продуктов</title>
-    #     </head>
-    #     <body>
-    #         <table>
-    #             <tr>
-    #                 <th>Номер</th>
-    #                 <th>Название</th>
-    #                 <th>Цена</th>
-    #                 <th>Фасовка</th>
-    #                 <th>Файл</th>
-    #                 <th>Цена за кг.</th>
-    #             </tr>
-    #     '''
 
     def export_to_html(self, output_file_path=r'output.html'):
         if self.data:
@@ -166,12 +130,12 @@ class PriceMachine():
                     file_name = i[3]
                     file.write(
                         f"<tr>"
-                            f"<td>{count}</td>"
-                            f"<td>{name}</td>"
-                            f"<td>{price}</td>"
-                            f"<td>{ves}</td>"
-                            f"<td>{file_name}</td>"
-                            f"<td>{price_per_kg}</td>"
+                        f"<td>{count}</td>"
+                        f"<td>{name}</td>"
+                        f"<td>{price}</td>"
+                        f"<td>{ves}</td>"
+                        f"<td>{file_name}</td>"
+                        f"<td>{price_per_kg}</td>"
                         f"</tr>"
                     )
                     count += 1
@@ -184,10 +148,28 @@ class PriceMachine():
         else:
             print("Нет данных для экспорта в HTML файл.")
 
-
     def find_text(self, text):
-        pass
-
+        result = []
+        size = 0
+        for record_product in self.data:
+            if text in record_product[0]:
+                if len(record_product[0]) > size:
+                    size = len(record_product[0])
+                result.append(record_product)
+            else:
+                continue
+        result = sorted(result, key=lambda x: float(x[4]))
+        n="№".ljust(5)
+        name = "наименование".ljust(size)
+        price = "цена".ljust(5)
+        ves = "вес".ljust(5)
+        filename = "файл".ljust(10)
+        price_per_kg = "цена за кг"
+        print(f"{n} {name}  {price} {ves} {filename} {price_per_kg}")
+        count = 1
+        for i in result:
+            print (f'{str(count).ljust(5)}  {i[0].ljust(size)}  {i[1].ljust(5)}  {i[2].ljust(3)} {i[3].ljust(10)} {str(i[4]).ljust(6)}')
+            count += 1
 
 print("          Анализатор прайс-листов")
 while True:
@@ -204,8 +186,15 @@ while True:
     else:
         print(f"Данные берем из этого каталога : {file_path}")
         pm = PriceMachine()
-        print(pm.load_prices(file_path))
-        pm.export_to_html()
+        pm.load_prices(file_path)
+        while True:
+            find_product = input('Введите название продукта (или exit для выхода)')
+            if "exit" in find_product:
+                break
+            else:
+                pm.find_text(find_product)
+
+        #pm.export_to_html() запуск при выходе
 
 #    Логика работы программы
 '''
