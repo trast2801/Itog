@@ -54,7 +54,13 @@ class PriceMachine():
                         temp_data.append([row[row_tovar], row[row_cena], row[row_ves], files[count_files],cena_za_edinicy]) # заполнение массива из прайсов
                     count_inner += 1
             count_files += 1  # использую для ввода имени файла
-        self._enum(temp_data)
+        #self._enum(temp_data)
+        self.data = sorted(temp_data, key=lambda x: float(x[4]))
+        count = 1
+        for i in self.data:
+            print(count, i[0], i[1], i[2], i[3], i[4])
+            count += 1
+
         '''
             Сканирует указанный каталог. Ищет файлы со словом price в названии.
             В файле ищет столбцы с названием товара, ценой и весом.
@@ -92,10 +98,10 @@ class PriceMachine():
 
         return row
 
-    def _enum(self, data : []):  # возвращает нумерованный список
+    def _enum(self, data : []):  # возвращает и сортированный нумерованный список
         count = 1
         target = []
-        target1 = sorted(data, key=lambda x: float(x[4]))
+        data = sorted(data, key=lambda x: float(x[4]))
         '''for i in target1:
             source = str(count) + ',' +  data[count-1]
             target.append(source)
@@ -105,28 +111,79 @@ class PriceMachine():
         self.data = target.copy()
 
         '''
-        for i in target1:
-            print(i)
+        for i in data:
+            print(count, i[0], i[1], i[2], i[3], i[4])
+            count += 1
 
 
-    def export_to_html(self, fname='output.html'):
-        result = '''
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>Позиции продуктов</title>
-        </head>
-        <body>
-            <table>
-                <tr>
-                    <th>Номер</th>
-                    <th>Название</th>
-                    <th>Цена</th>
-                    <th>Фасовка</th>
-                    <th>Файл</th>
-                    <th>Цена за кг.</th>
-                </tr>
-        '''
+    # def export_to_html(self, fname='output.html'):
+    #     result = '''
+    #     <!DOCTYPE html>
+    #     <html>
+    #     <head>
+    #         <title>Позиции продуктов</title>
+    #     </head>
+    #     <body>
+    #         <table>
+    #             <tr>
+    #                 <th>Номер</th>
+    #                 <th>Название</th>
+    #                 <th>Цена</th>
+    #                 <th>Фасовка</th>
+    #                 <th>Файл</th>
+    #                 <th>Цена за кг.</th>
+    #             </tr>
+    #     '''
+
+    def export_to_html(self, output_file_path=r'output.html'):
+        if self.data:
+            with open(output_file_path, 'w', encoding='utf-8') as file:
+                file.write('''
+                <!DOCTYPE html>
+                <html lang='ru'>
+                <head>
+                    <meta charset='UTF-8'>
+                    <title>Список продуктов</title>
+                </head>
+                <body>
+                    <table>
+                        <tr>
+                            <th>№</th>
+                            <th>Наименование</th>
+                            <th>Цена </th>
+                            <th>Вес </th>
+                            <th>Файл </th>
+                            <th>Цена за кг. </th>
+                        </tr>
+                ''')
+
+                count = 1
+                for i in self.data:
+                    name = i[0]
+                    price = i[1]
+                    price_per_kg = str(i[4])
+                    ves = i[2]
+                    file_name = i[3]
+                    file.write(
+                        f"<tr>"
+                            f"<td>{count}</td>"
+                            f"<td>{name}</td>"
+                            f"<td>{price}</td>"
+                            f"<td>{ves}</td>"
+                            f"<td>{file_name}</td>"
+                            f"<td>{price_per_kg}</td>"
+                        f"</tr>"
+                    )
+                    count += 1
+                file.write('''
+                    </table>
+                </body>
+                </html>
+                ''')
+            print(f"HTML файл успешно создан: {output_file_path}")
+        else:
+            print("Нет данных для экспорта в HTML файл.")
+
 
     def find_text(self, text):
         pass
@@ -148,6 +205,7 @@ while True:
         print(f"Данные берем из этого каталога : {file_path}")
         pm = PriceMachine()
         print(pm.load_prices(file_path))
+        pm.export_to_html()
 
 #    Логика работы программы
 '''
