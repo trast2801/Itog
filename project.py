@@ -172,28 +172,48 @@ class PriceMachine():
             count += 1
 
 print("          Анализатор прайс-листов")
+flag = False
+pm = PriceMachine()
 while True:
-    print()
-    file_path = input('Введите путь для импорта данных, по умолчанию используем текущую папку /data ('
-                      'для выхода нажимите /) :')
-    if file_path == "/":
-        break
-    if len(file_path) == 0:
-        file_path = os.getcwd() + '\data\\'  # путь по умолчанию в папке проекта
-    if os.path.exists(file_path) == False:
-        input("Такой каталог не доступен, нажмите Enter для продолжения")
-        print()
-    else:
-        print(f"Данные берем из этого каталога : {file_path}")
-        pm = PriceMachine()
-        pm.load_prices(file_path)
-        while True:
+
+    print ("\n Сделайте Ваш выбор:"
+           "\n  1. Загрузить данные или выполнить поиск"
+           "\n  Для выхода напечатайте exit " )
+    key = input()
+    if key == "1" and flag == False:
+        file_path = input('Введите путь для импорта данных, по умолчанию используем текущую папку /data:')
+        if len(file_path) == 0:
+            file_path = os.getcwd() + '\data\\'  # путь по умолчанию в папке проекта
+        if os.path.exists(file_path) == False:
+            input("Такой каталог не доступен, нажмите Enter для продолжения")
+            print()
+        else:
+            print(f"Данные берем из этого каталога : {file_path}")
+            pm.load_prices(file_path)
+            print("Данные загружены")
+            flag = True
             find_product = input('Введите название продукта (или exit для выхода)')
             if "exit" in find_product:
+                print("при выходе загруженные данные сохраняться в файле output.txt")
+                pm.export_to_html()
                 break
             else:
                 pm.find_text(find_product)
-
+            input("Нажмите любую клавишу")
+            #pm.export_to_html()
+    elif key == 1 or flag == True:
+        find_product = input('Введите название продукта (или exit для выхода)')
+        if "exit" in find_product:
+            print("при выходе загруженные данные сохраняться в файле output.txt")
+            pm.export_to_html()
+            break
+        else:
+            pm.find_text(find_product)
+        input("Нажмите любую клавишу")
+    elif "exit" in key:
+        break
+    else:
+        continue
         #pm.export_to_html() запуск при выходе
 
 #    Логика работы программы
