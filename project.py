@@ -8,12 +8,12 @@ class PriceMachine():
     def __init__(self):
         self.data = []
         ''' здесь хранятся данные из прайс листов
-            это набор коретежей
+            это набор 
             (номер пп, название, цена, фасовка, файл, цена за кг)
             цена за кг - вычисляемое поле (фасовка * цена)  
         '''
 
-        self.result = ''  # пока не придумал
+        self.result = ''
         self.name_length = 0
 
     def load_prices(self, file_path):
@@ -23,7 +23,7 @@ class PriceMachine():
 
         # добавить проверку что это csv файл ??
 
-        for i in files:  #добавляет асболютный путь к прайсам
+        for i in files:  # добавляет асболютный путь к прайсам и убирает лишние файлы
             if 'price' in i:
                 temp = file_path + i
                 result.append(temp)
@@ -53,7 +53,6 @@ class PriceMachine():
             count_files += 1  # использую для ввода имени файла
         self.data = sorted(temp_data, key=lambda x: float(x[4]))
 
-
         '''
             Сканирует указанный каталог. Ищет файлы со словом price в названии.
             В файле ищет столбцы с названием товара, ценой и весом.
@@ -74,6 +73,10 @@ class PriceMachine():
         '''
 
     def _search_product_price_weight(self, headers):
+        '''
+        Получает на вход строку заголовок из csv файла и разбирает по номерам столбцов
+        в словарь, затем его возвращает с отобранными номерами столбцов
+        '''
         row = {}
         count = 0
         for temp in headers:
@@ -90,14 +93,6 @@ class PriceMachine():
         '''
 
         return row
-
-    def _enum(self, data: []):  # возвращает и сортированный нумерованный список
-        count = 1
-        target = []
-        data = sorted(data, key=lambda x: float(x[4]))
-        for i in data:
-            print(count, i[0], i[1], i[2], i[3], i[4])
-            count += 1
 
     def export_to_html(self, output_file_path=r'output.html'):
         if self.data:
@@ -159,7 +154,7 @@ class PriceMachine():
             else:
                 continue
         result = sorted(result, key=lambda x: float(x[4]))
-        n="№".ljust(5)
+        n = "№".ljust(5)
         name = "наименование".ljust(size)
         price = "цена".ljust(5)
         ves = "вес".ljust(5)
@@ -168,17 +163,19 @@ class PriceMachine():
         print(f"{n} {name}  {price} {ves} {filename} {price_per_kg}")
         count = 1
         for i in result:
-            print (f'{str(count).ljust(5)}  {i[0].ljust(size)}  {i[1].ljust(5)}  {i[2].ljust(3)} {i[3].ljust(10)} {str(i[4]).ljust(6)}')
+            print(
+                f'{str(count).ljust(5)}  {i[0].ljust(size)}  {i[1].ljust(5)}  {i[2].ljust(3)} {i[3].ljust(10)} {str(i[4]).ljust(6)}')
             count += 1
 
+
 print("          Анализатор прайс-листов")
-flag = False
+flag = False # используется чтобы повторно не загружать данные из прайсов
 pm = PriceMachine()
 while True:
 
-    print ("\n Сделайте Ваш выбор:"
-           "\n  1. Загрузить данные или выполнить поиск"
-           "\n  Для выхода напечатайте exit " )
+    print("\n Сделайте Ваш выбор:"
+          "\n  1. Загрузить данные или выполнить поиск"
+          "\n  Для выхода напечатайте exit ")
     key = input()
     if key == "1" and flag == False:
         file_path = input('Введите путь для импорта данных, по умолчанию используем текущую папку /data:')
@@ -192,7 +189,7 @@ while True:
             pm.load_prices(file_path)
             print("Данные загружены")
             flag = True
-            find_product = input('Введите название продукта (или exit для выхода)')
+            find_product = input('Введите название продукта (или exit для выхода) (Enter- получить полный список) 1')
             if "exit" in find_product:
                 print("при выходе загруженные данные сохраняться в файле output.txt")
                 pm.export_to_html()
@@ -200,7 +197,7 @@ while True:
             else:
                 pm.find_text(find_product)
             input("Нажмите любую клавишу")
-            #pm.export_to_html()
+            # pm.export_to_html()
     elif key == 1 or flag == True:
         find_product = input('Введите название продукта (или exit для выхода)')
         if "exit" in find_product:
@@ -214,7 +211,7 @@ while True:
         break
     else:
         continue
-        #pm.export_to_html() запуск при выходе
+        # pm.export_to_html() запуск при выходе
 
 #    Логика работы программы
 '''
