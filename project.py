@@ -167,6 +167,8 @@ class PriceMachine():
             print(
                 f'{str(count).ljust(5)}  {i[0].ljust(size)}  {i[1].ljust(5)}  {i[2].ljust(3)} {i[3].ljust(10)} {str(i[4]).ljust(6)}')
             count += 1
+
+
 def first():
     pm = PriceMachine()
     while True:
@@ -179,13 +181,16 @@ def first():
             if len(file_path) == 0:
                 file_path = os.getcwd() + '\data\\'  # путь по умолчанию в папке проекта
             if os.path.exists(file_path) == False:
-                input("Такой каталог не доступен, нажмите Enter для продолжения")
-                print()
+                input("Такой каталог не доступен, нажмите Enter для продолжения\n")
+
             else:
                 print(f"Данные берем из этого каталога : {file_path}")
                 pm.load_prices(file_path)
                 print("Данные загружены")
         if key == "2":
+            if len(pm.data) == 0:
+                input("\nВыполните загрузку данных, нажмите Enter для продолжения\n")
+                continue
             find_product = input('Введите название продукта (или exit для выхода) (Enter- получить полный список)')
             if "exit" in find_product:
                 print("при выходе загруженные данные сохраняться в файле output.txt")
@@ -196,6 +201,7 @@ def first():
             input("Нажмите любую клавишу")
         if key == "3":
             sys.exit()
+
 
 def second():
     print("          Анализатор прайс-листов")
@@ -214,6 +220,7 @@ def second():
             pm.find_text(find_product)
         input("Нажмите любую клавишу")
 
+
 #    Логика работы программы
 while True:
 
@@ -227,7 +234,6 @@ while True:
         first()
     if key == "3":
         sys.exit()
-
 
 '''
 print('the end')
