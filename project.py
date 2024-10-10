@@ -1,6 +1,7 @@
 import csv
 import os
 import json
+import sys
 
 
 class PriceMachine():
@@ -166,54 +167,68 @@ class PriceMachine():
             print(
                 f'{str(count).ljust(5)}  {i[0].ljust(size)}  {i[1].ljust(5)}  {i[2].ljust(3)} {i[3].ljust(10)} {str(i[4]).ljust(6)}')
             count += 1
-
-
-print("          Анализатор прайс-листов")
-flag = False  # используется чтобы повторно не загружать данные из прайсов
-pm = PriceMachine()
-while True:
-
-    print("\n Сделайте Ваш выбор:"
-          "\n  1. Загрузить данные или выполнить поиск"
-          "\n  Для выхода напечатайте exit ")
-    key = input()
-    if key == "1" and flag == False:
-        file_path = input('Введите путь для импорта данных, по умолчанию используем текущую папку /data:')
-        if len(file_path) == 0:
-            file_path = os.getcwd() + '\data\\'  # путь по умолчанию в папке проекта
-        if os.path.exists(file_path) == False:
-            input("Такой каталог не доступен, нажмите Enter для продолжения")
-            print()
-        else:
-            print(f"Данные берем из этого каталога : {file_path}")
-            pm.load_prices(file_path)
-            print("Данные загружены")
-            flag = True
-            find_product = input('Введите название продукта (или exit для выхода) (Enter- получить полный список) 1')
+def first():
+    pm = PriceMachine()
+    while True:
+        key = input("  Сделайте Ваш выбор: \n"
+                    "1. Загрузить данные\n"
+                    "2. Выполнить поиск\n"
+                    "3. Завершить работу программы\n")
+        if key == "1":
+            file_path = input('Введите путь для импорта данных, по умолчанию используем текущую папку /data:')
+            if len(file_path) == 0:
+                file_path = os.getcwd() + '\data\\'  # путь по умолчанию в папке проекта
+            if os.path.exists(file_path) == False:
+                input("Такой каталог не доступен, нажмите Enter для продолжения")
+                print()
+            else:
+                print(f"Данные берем из этого каталога : {file_path}")
+                pm.load_prices(file_path)
+                print("Данные загружены")
+        if key == "2":
+            find_product = input('Введите название продукта (или exit для выхода) (Enter- получить полный список)')
             if "exit" in find_product:
                 print("при выходе загруженные данные сохраняться в файле output.txt")
                 pm.export_to_html()
-                break
+                sys.exit()
             else:
                 pm.find_text(find_product)
             input("Нажмите любую клавишу")
-            # pm.export_to_html()
-    elif key == 1 or flag == True:
-        find_product = input('Введите название продукта (или exit для выхода)')
+        if key == "3":
+            sys.exit()
+
+def second():
+    print("          Анализатор прайс-листов")
+    file_path = os.getcwd() + '\data\\'  # путь по умолчанию в папке проекта
+    print(f"Данные берем из этого каталога : {file_path}")
+    print("Данные загружены")
+    while True:
+        pm = PriceMachine()
+        pm.load_prices(file_path)
+        find_product = input('Введите название продукта (или exit для выхода) (Enter- получить полный список)')
         if "exit" in find_product:
             print("при выходе загруженные данные сохраняться в файле output.txt")
             pm.export_to_html()
-            break
+            sys.exit()
         else:
             pm.find_text(find_product)
         input("Нажмите любую клавишу")
-    elif "exit" in key:
-        break
-    else:
-        continue
-        # pm.export_to_html() запуск при выходе
 
 #    Логика работы программы
+while True:
+
+    key = input("Выберите вариант работы программы\n "
+                "1. согласно ТЗ\n"
+                " 2. вольный вариант\n"
+                " 3. Выход\n")
+    if key == "1":
+        second()
+    if key == "2":
+        first()
+    if key == "3":
+        sys.exit()
+
+
 '''
 print('the end')
 print(pm.export_to_html())
